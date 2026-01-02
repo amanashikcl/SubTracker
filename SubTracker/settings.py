@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-6l^x^$_+&m14i=70(0+gnj1#wv+0(#^1o_wipen60g)d0bjk%h
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG') == 'True'
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '3.108.252.12']
+ALLOWED_HOSTS = ['subtrackerapp.tech', 'www.subtrackerapp.tech', 'web', 'localhost', '3.108.252.12']
 
 
 # Application definition
