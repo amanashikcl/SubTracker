@@ -6,7 +6,7 @@ from .models import Subscription
 class SubscriptionForm(forms.ModelForm):
     class Meta:
         model = Subscription
-        fields = ['name', 'cost', 'frequency', 'next_billing_date' 'start_date', 'reminder_days_before']
+        fields = ['name', 'cost', 'frequency', 'next_billing_date', 'start_date', 'reminder_days_before']
 
         widgets = {
             # Added 'input input-bordered' and removed manual border/padding
