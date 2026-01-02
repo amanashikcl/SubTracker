@@ -150,3 +150,11 @@ EMAIL_HOST_PASSWORD = 'tqrf ohwe wznf zzim'
 
 LOGOUT_REDIRECT_URL = 'login'  # Redirect to login page after logout
 LOGIN_REDIRECT_URL = 'dashboard' # Redirect to dashboard after login
+
+# settings.py
+
+# ... existing code ...
+STATIC_URL = 'static/'
+
+# ADD THIS LINE:
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
