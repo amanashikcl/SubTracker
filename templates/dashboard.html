@@ -6,15 +6,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-    {% if upcoming_sub %}
-<div role="alert" class="alert alert-warning shadow-sm mb-6 py-3 px-4 flex justify-between">
-    <div class="flex items-center gap-2">
-        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-5 w-5" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
-        <span class="text-sm font-medium">Upcoming payment: <b>{{ upcoming_sub.name }}</b> is due on {{ upcoming_sub.next_billing_date }}!</span>
-    </div>
-    <button onclick="this.parentElement.remove()" class="btn btn-ghost btn-xs underline">Dismiss</button>
-</div>
-{% endif %}
+
     <div>
         <h1 class="text-3xl font-bold">My Subscriptions</h1>
         <p class="text-base-content/60">Manage and track your recurring expenses</p>
@@ -82,10 +74,16 @@
                 </td>
                 <td class="text-lg font-semibold">${{ sub.cost }}</td>
                 <td>
-                    <div class="badge badge-primary badge-outline font-medium">
-                        {{ sub.next_billing_date }}
-                    </div>
-                </td>
+    <div class="badge {% if sub.is_near_due %}badge-error text-white{% else %}badge-primary badge-outline{% endif %} font-medium">
+        {{ sub.next_billing_date }}
+    </div>
+
+    {% if sub.is_near_due %}
+        <div class="text-[10px] text-error font-bold mt-1 uppercase">
+            Due in {{ sub.days_until_due }} days
+        </div>
+    {% endif %}
+</td>
                 <td>
                     <div class="badge badge-ghost capitalize">{{ sub.frequency }}</div>
                 </td>

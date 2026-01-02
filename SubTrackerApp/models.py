@@ -77,5 +77,20 @@ class Subscription(models.Model):
             # Default is monthly
             return self.cost
 
+    @property
+    def days_until_due(self):
+        """Returns the number of days between today and the next bill."""
+        if self.next_billing_date:
+            delta = self.next_billing_date - date.today()
+            return delta.days
+        return None
+
+    @property
+    def is_near_due(self):
+        """Returns True only if the bill is due within the user's reminder window."""
+        days = self.days_until_due
+        # Check if it's in the future and within the reminder threshold (e.g., 3 days)
+        return days is not None and 0 <= days <= self.reminder_days_before
+
     def __str__(self):
         return f"{self.name} ({self.cost})"
