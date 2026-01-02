@@ -1,3 +1,4 @@
+from celery import shared_task
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
@@ -6,7 +7,7 @@ from .forms import SubscriptionForm
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login, logout
 from decimal import Decimal
-from .tasks import send_welcome_email
+from .tasks import send_welcome_email, send_signup_email
 from .models import Subscription
 
 
@@ -120,12 +121,14 @@ def delete_subscription(request, id):
 
 from .forms import UserRegisterForm # Import your new custom form
 
+
+
 def register(request):
     if request.method == 'POST':
         form = UserRegisterForm(request.POST) # Use the custom one
         if form.is_valid():
             user = form.save()
-            send_welcome_email.delay(user.email, "SubTracker")
+            send_signup_email.delay(user.email, "SubTracker")
             login(request, user)
             return redirect('dashboard')
     else:

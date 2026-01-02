@@ -29,6 +29,16 @@ def send_welcome_email(user_email, sub_name):
         fail_silently=False,
     )
 
+@shared_task
+def send_signup_email(user_email, sub_name):
+    send_mail(
+        subject=f"SignUp successful!",
+        message=f"Thank you for signing up for SubTracker! {sub_name}",
+        from_email='subtrackeralert@gmail.com',
+        recipient_list=[user_email],
+        fail_silently=False,
+    )
+
 from django.utils import timezone
 from .models import Subscription
 
