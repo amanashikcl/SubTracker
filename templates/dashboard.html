@@ -4,85 +4,110 @@
 
 {% block content %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<div class="flex justify-between items-center mb-6">
-    <h1 class="text-3xl font-bold text-gray-800">My Subscriptions</h1>
-    <span class="text-gray-500">Total: ${{ total_cost|default:"0" }}/mo</span>
+
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+    <div>
+        <h1 class="text-3xl font-bold">My Subscriptions</h1>
+        <p class="text-base-content/60">Manage and track your recurring expenses</p>
+    </div>
+    <a href="{% url 'add_subscription' %}" class="btn btn-primary">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+        Add Subscription
+    </a>
 </div>
-<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-    <div class="bg-white rounded-lg shadow p-6 flex flex-col justify-center items-center">
-        <h3 class="text-gray-500 text-sm font-bold uppercase mb-2">Total Monthly Cost</h3>
-        <p class="text-4xl font-extrabold text-blue-600">${{ total_cost }}</p>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+    <div class="stats shadow bg-base-100 lg:col-span-1">
+        <div class="stat">
+            <div class="stat-figure text-primary">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-8 h-8 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            </div>
+            <div class="stat-title">Total Monthly Cost</div>
+            <div class="stat-value text-primary">${{ total_cost|default:"0" }}</div>
+            <div class="stat-desc">Monthly recurring spend</div>
+        </div>
     </div>
 
-    <div class="bg-white rounded-lg shadow p-6">
-        <h3 class="text-gray-500 text-sm font-bold uppercase mb-4 text-center">Spend Breakdown</h3>
-        <div class="relative h-64">
-            <canvas id="spendChart"></canvas>
+    <div class="card bg-base-100 shadow lg:col-span-2">
+        <div class="card-body py-4">
+            <h3 class="card-title text-sm uppercase opacity-50">Spend Breakdown</h3>
+            <div class="relative h-48">
+                <canvas id="spendChart"></canvas>
+            </div>
         </div>
     </div>
 </div>
-<div class="bg-white shadow-md rounded-lg overflow-hidden">
-    <table class="min-w-full leading-normal">
+
+<div class="overflow-x-auto bg-base-100 rounded-box shadow">
+    <table class="table table-zebra w-full">
         <thead>
-            <tr>
-                <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Name</th>
-                <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Cost</th>
-                <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Next Bill</th>
-                <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Freq</th>
-                <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
+            <tr class="text-base-content/70">
+                <th>Name</th>
+                <th>Cost</th>
+                <th>Next Bill</th>
+                <th>Frequency</th>
+                <th class="text-right">Actions</th>
             </tr>
         </thead>
         <tbody>
             {% for sub in subscriptions %}
-            <tr class="hover:bg-gray-50">
-                <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm font-medium">{{ sub.name }}</td>
-                <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">${{ sub.cost }}</td>
-                <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                    <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
-                        {{ sub.next_billing_date }}
-                    </span>
+            <tr>
+                <td>
+                    <div class="font-bold text-lg">{{ sub.name }}</div>
                 </td>
-                <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm capitalize text-gray-500">{{ sub.frequency }}</td>
-                <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-    <div class="flex items-center space-x-3">
-        <a href="{% url 'edit_subscription' sub.id %}" class="text-blue-600 hover:text-blue-900">
-            Edit
-        </a>
-        <a href="{% url 'delete_subscription' sub.id %}" class="text-red-600 hover:text-red-900">
-            Delete
-        </a>
-    </div>
-</td>
+                <td class="text-lg font-semibold">${{ sub.cost }}</td>
+                <td>
+                    <div class="badge badge-primary badge-outline font-medium">
+                        {{ sub.next_billing_date }}
+                    </div>
+                </td>
+                <td>
+                    <div class="badge badge-ghost capitalize">{{ sub.frequency }}</div>
+                </td>
+                <td class="text-right">
+                    <div class="flex justify-end gap-2">
+                        <a href="{% url 'edit_subscription' sub.id %}" class="btn btn-ghost btn-xs text-info">Edit</a>
+                        <a href="{% url 'delete_subscription' sub.id %}" class="btn btn-ghost btn-xs text-error">Delete</a>
+                    </div>
+                </td>
             </tr>
             {% empty %}
             <tr>
-                <td colspan="5" class="px-5 py-10 text-center text-gray-500">
-                    <p>No subscriptions yet.</p>
-                    <a href="{% url 'add_subscription' %}" class="text-blue-500 underline">Add your first one</a>
+                <td colspan="5" class="py-12">
+                    <div class="flex flex-col items-center opacity-40">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0a2 2 0 01-2 2H6a2 2 0 01-2-2m16 0l-8 4-8-4" /></svg>
+                        <p>No subscriptions tracked yet.</p>
+                        <a href="{% url 'add_subscription' %}" class="link link-primary">Get started here</a>
+                    </div>
                 </td>
-
             </tr>
             {% endfor %}
         </tbody>
     </table>
 </div>
+
 <script>
     const ctx = document.getElementById('spendChart').getContext('2d');
 
-    // Unpack data from Django (Safe parsing)
-    const labels = {{ sub_names|safe }};
-    const data = {{ sub_costs|safe }};
+    // Get colors from CSS variables so they match the daisyUI theme
+    const style = getComputedStyle(document.body);
+    const primary = style.getPropertyValue('--p'); // Primary color
+    const secondary = style.getPropertyValue('--s'); // Secondary color
+    const accent = style.getPropertyValue('--a'); // Accent color
 
     new Chart(ctx, {
         type: 'doughnut',
         data: {
-            labels: labels,
+            labels: {{ sub_names|safe }},
             datasets: [{
-                data: data,
+                data: {{ sub_costs|safe }},
                 backgroundColor: [
-                    '#3B82F6', '#10B981', '#F59E0B', '#EF4444',
-                    '#8B5CF6', '#EC4899', '#6366F1'
+                    'oklch(' + primary + ')',
+                    'oklch(' + secondary + ')',
+                    'oklch(' + accent + ')',
+                    '#3b82f6', '#10b981', '#f59e0b'
                 ],
+                hoverOffset: 15,
                 borderWidth: 0
             }]
         },
@@ -91,7 +116,12 @@
             maintainAspectRatio: false,
             plugins: {
                 legend: {
-                    position: 'bottom',
+                    position: 'right',
+                    labels: {
+                        usePointStyle: true,
+                        padding: 20,
+                        color: style.getPropertyValue('--bc') // Base content color (text)
+                    }
                 }
             }
         }
