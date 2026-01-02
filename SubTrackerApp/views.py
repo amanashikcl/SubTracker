@@ -24,29 +24,62 @@ def add_subscription(request):
     return render(request, 'add_subscription.html', {'form': form})
 
 
-@login_required
 
+
+
+from datetime import date, timedelta
+from dateutil.relativedelta import relativedelta  # Ensure this is installed: pip install python-dateutil
+
+
+@login_required
 def dashboard(request):
     # 1. Fetch all active subscriptions
-    # (Assuming related_name='subscriptions' is set in your Model)
-    subs = request.user.subscriptions.filter(is_active=True)
+    subs = request.user.subscriptions.filter(is_active=True).order_by('next_billing_date')
+    today = date.today()
 
-    # 2. Calculate totals
+    # 2. AUTO-ROLLOVER LOGIC: Update dates that have already passed
+    for sub in subs:
+        updated = False
+        # If the bill date is in the past, move it to the next future occurrence
+        while sub.next_billing_date < today:
+            if sub.frequency == 'weekly':
+                sub.next_billing_date += timedelta(days=7)
+            elif sub.frequency == 'monthly':
+                sub.next_billing_date += relativedelta(months=1)
+            elif sub.frequency == 'yearly':
+                sub.next_billing_date += relativedelta(years=1)
+            updated = True
+
+        if updated:
+            sub.save()  # Commit the new future date to the database
+
+    # 3. Calculate totals (using updated dates if necessary)
     total_monthly_spend = sum(sub.monthly_equivalent for sub in subs)
 
-    # 3. PREPARE CHART DATA (This was missing!)
-    # Create simple lists of names and costs for the frontend to digest
+    # 4. Prepare Chart Data
     sub_names = [sub.name for sub in subs]
-
-    # We use 'monthly_equivalent' so the chart compares apples-to-apples
-    # We convert to float because JavaScript doesn't understand Python Decimals
     sub_costs = [float(sub.monthly_equivalent) for sub in subs]
+
+    # 5. UPCOMING REMINDER LOGIC
+    # Get the subscription due soonest (since we ordered by next_billing_date)
+    upcoming_sub = subs.first()
+    show_alert = False
+
+    if upcoming_sub:
+        days_until = (upcoming_sub.next_billing_date - today).days
+        upcoming_sub.days_until = days_until
+        # Show alert if due within 7 days
+        if 0 <= days_until <= 7:
+            show_alert = True
 
     context = {
         'subscriptions': subs,
         'total_cost': round(total_monthly_spend, 2),
-        'sub_names': sub_names,  # <--- Now passing this
-        'sub_costs': sub_costs,  # <--- Now passing this
+        'sub_names': sub_names,
+        'sub_costs': sub_costs,
+        'upcoming_sub': upcoming_sub,
+        'show_alert': show_alert,
+        'today': today,  # Useful for highlighting "due today" in the template
     }
 
     return render(request, 'dashboard.html', context)
