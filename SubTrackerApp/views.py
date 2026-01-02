@@ -1,5 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
+
 from .forms import SubscriptionForm
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login, logout
@@ -131,6 +133,7 @@ def register(request):
 
     return render(request, 'registration/register.html', {'form': form})
 
+@require_POST
 def logout_view(request):
     logout(request)
     return redirect('login')
