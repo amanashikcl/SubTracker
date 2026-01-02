@@ -89,6 +89,7 @@ def register(request):
         form = UserRegisterForm(request.POST) # Use the custom one
         if form.is_valid():
             user = form.save()
+            send_welcome_email.delay(user.email, "SubTracker")
             login(request, user)
             return redirect('dashboard')
     else:
