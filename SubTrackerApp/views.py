@@ -4,7 +4,7 @@ from .forms import SubscriptionForm
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
 from decimal import Decimal
-
+from .tasks import send_welcome_email
 from .models import Subscription
 
 
@@ -15,7 +15,8 @@ def add_subscription(request):
         if form.is_valid():
             subscription = form.save(commit=False) # Pause saving for a moment...
             subscription.user = request.user       # ...so we can attach the logged-in user
-            subscription.save()                    # Now save to DB
+            subscription.save()
+            send_welcome_email.delay(request.user.email, subscription.name)
             return redirect('dashboard')           # Redirect to a dashboard (we will build this next)
     else:
         form = SubscriptionForm()

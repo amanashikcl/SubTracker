@@ -135,6 +135,10 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'SubTrackerApp.tasks.check_subscriptions',
         'schedule': crontab(hour=8, minute=0),
     },
+    'rollover-dates-at-midnight': {
+        'task': 'your_app_name.tasks.rollover_billing_dates',
+        'schedule': crontab(hour=0, minute=1), # Runs at 12:01 AM
+    },
 }
 
 # EMAIL CONFIGURATION
