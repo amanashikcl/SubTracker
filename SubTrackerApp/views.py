@@ -25,6 +25,7 @@ def add_subscription(request):
 
 
 @login_required
+
 def dashboard(request):
     # 1. Fetch all active subscriptions
     # (Assuming related_name='subscriptions' is set in your Model)
