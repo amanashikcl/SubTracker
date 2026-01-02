@@ -38,10 +38,12 @@
         <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
         <div class="divider my-0"></div>
         <li>
-            <form method="post" action="{% url 'logout' %}" class="w-full">
-                {% csrf_token %}
-                <button type="submit" class="text-error w-full text-left">Logout</button>
-            </form>
+            <form method="post" action="{% url 'logout' %}" class="w-full relative z-50">
+    {% csrf_token %}
+    <button type="submit" class="text-error w-full text-left py-2 px-4 hover:bg-base-200 block">
+        Logout
+    </button>
+</form>
         </li>
       </ul>
     </div>
