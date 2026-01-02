@@ -164,3 +164,10 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 # ADD THIS LINE:
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://subtrackerapp.tech',
+    'https://www.subtrackerapp.tech'
+]
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
