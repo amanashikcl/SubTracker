@@ -31,7 +31,7 @@
     <div class="card bg-base-100 shadow lg:col-span-2">
     <div class="card-body py-4">
         <h3 class="card-title text-sm uppercase opacity-50">Spend Breakdown</h3>
-        <div class="relative h-64 w-full max-w-[300px] mx-auto">
+        <div class="relative h-72 w-full max-w-[350px] mx-auto">
             <canvas id="spendChart"></canvas>
         </div>
     </div>
@@ -89,11 +89,10 @@
 <script>
     const ctx = document.getElementById('spendChart').getContext('2d');
 
-    // Get colors from CSS variables so they match the daisyUI theme
     const style = getComputedStyle(document.body);
-    const primary = style.getPropertyValue('--p'); // Primary color
-    const secondary = style.getPropertyValue('--s'); // Secondary color
-    const accent = style.getPropertyValue('--a'); // Accent color
+    const primary = style.getPropertyValue('--p');
+    const secondary = style.getPropertyValue('--s');
+    const accent = style.getPropertyValue('--a');
 
     new Chart(ctx, {
         type: 'doughnut',
@@ -107,20 +106,25 @@
                     'oklch(' + accent + ')',
                     '#3b82f6', '#10b981', '#f59e0b'
                 ],
-                hoverOffset: 15,
+                hoverOffset: 10, // Reduced slightly to save space
                 borderWidth: 0
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            // 1. Add padding so the hover effect doesn't hit the edges
+            layout: {
+                padding: 20
+            },
             plugins: {
                 legend: {
-                    position: 'right',
+                    // 2. Move to bottom so the chart stays centered
+                    position: 'bottom',
                     labels: {
                         usePointStyle: true,
-                        padding: 20,
-                        color: style.getPropertyValue('--bc') // Base content color (text)
+                        padding: 15,
+                        color: `oklch(${style.getPropertyValue('--bc')})`
                     }
                 }
             }
