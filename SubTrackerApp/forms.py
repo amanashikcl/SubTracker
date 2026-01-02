@@ -10,6 +10,7 @@ class SubscriptionForm(forms.ModelForm):
 
         widgets = {
             # Added 'input input-bordered' and removed manual border/padding
+            'next_billing_date': forms.DateInput(attrs={'type': 'date', 'class': 'input input-bordered w-full'}),
             'start_date': forms.DateInput(attrs={'type': 'date', 'class': 'input input-bordered w-full'}),
             'name': forms.TextInput(attrs={'class': 'input input-bordered w-full', 'placeholder': 'e.g. Netflix'}),
             'cost': forms.NumberInput(attrs={'class': 'input input-bordered w-full'}),
