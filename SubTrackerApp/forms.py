@@ -1,4 +1,7 @@
 from django import forms
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
+
 from .models import Subscription
 
 
@@ -15,3 +18,14 @@ class SubscriptionForm(forms.ModelForm):
 
             'reminder_days_before': forms.NumberInput(attrs={'class': 'border p-2 rounded w-full'}),
         }
+
+class UserRegisterForm(UserCreationForm):
+    email = forms.EmailField(required=True, widget=forms.EmailInput(attrs={
+        'class': 'border p-2 rounded w-full',
+        'placeholder': 'Enter your email'
+    }))
+
+    class Meta(UserCreationForm.Meta):
+        model = User
+        # This keeps the username/passwords and adds email
+        fields = UserCreationForm.Meta.fields + ('email',)

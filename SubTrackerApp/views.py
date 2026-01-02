@@ -82,15 +82,16 @@ def delete_subscription(request, id):
     return render(request, 'delete_confirm.html', {'subscription': subscription})
 
 
+from .forms import UserRegisterForm # Import your new custom form
+
 def register(request):
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
+        form = UserRegisterForm(request.POST) # Use the custom one
         if form.is_valid():
             user = form.save()
-            # Log the user in immediately
             login(request, user)
             return redirect('dashboard')
     else:
-        form = UserCreationForm()
+        form = UserRegisterForm()
 
     return render(request, 'registration/register.html', {'form': form})
