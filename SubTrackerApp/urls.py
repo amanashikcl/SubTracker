@@ -10,5 +10,5 @@ urlpatterns = [
     path('edit/<int:id>/', views.edit_subscription, name='edit_subscription'),
     path('delete/<int:id>/', views.delete_subscription, name='delete_subscription'),
     path('register/', views.register, name='register'),
-    path('logout/', auth_views.LogoutView.as_view(), name='logout'),
+    path('logout/', views.logout_view, name='logout'),
 ]
