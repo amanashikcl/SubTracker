@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - SubTracker{% endblock %}
+
+{% block content %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<div class="flex justify-between items-center mb-6">
+    <h1 class="text-3xl font-bold text-gray-800">My Subscriptions</h1>
+    <span class="text-gray-500">Total: ${{ total_cost|default:"0" }}/mo</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+    <div class="bg-white rounded-lg shadow p-6 flex flex-col justify-center items-center">
+        <h3 class="text-gray-500 text-sm font-bold uppercase mb-2">Total Monthly Cost</h3>
+        <p class="text-4xl font-extrabold text-blue-600">${{ total_cost }}</p>
+    </div>
+
+    <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-gray-500 text-sm font-bold uppercase mb-4 text-center">Spend Breakdown</h3>
+        <div class="relative h-64">
+            <canvas id="spendChart"></canvas>
+        </div>
+    </div>
+</div>
+<div class="bg-white shadow-md rounded-lg overflow-hidden">
+    <table class="min-w-full leading-normal">
+        <thead>
+            <tr>
+                <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Name</th>
+                <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Cost</th>
+                <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Next Bill</th>
+                <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Freq</th>
+                <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for sub in subscriptions %}
+            <tr class="hover:bg-gray-50">
+                <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm font-medium">{{ sub.name }}</td>
+                <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">${{ sub.cost }}</td>
+                <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                    <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
+                        {{ sub.next_billing_date }}
+                    </span>
+                </td>
+                <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm capitalize text-gray-500">{{ sub.frequency }}</td>
+                <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+    <div class="flex items-center space-x-3">
+        <a href="{% url 'edit_subscription' sub.id %}" class="text-blue-600 hover:text-blue-900">
+            Edit
+        </a>
+        <a href="{% url 'delete_subscription' sub.id %}" class="text-red-600 hover:text-red-900">
+            Delete
+        </a>
+    </div>
+</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" class="px-5 py-10 text-center text-gray-500">
+                    <p>No subscriptions yet.</p>
+                    <a href="{% url 'add_subscription' %}" class="text-blue-500 underline">Add your first one</a>
+                </td>
+
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<script>
+    const ctx = document.getElementById('spendChart').getContext('2d');
+
+    // Unpack data from Django (Safe parsing)
+    const labels = {{ sub_names|safe }};
+    const data = {{ sub_costs|safe }};
+
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: data,
+                backgroundColor: [
+                    '#3B82F6', '#10B981', '#F59E0B', '#EF4444',
+                    '#8B5CF6', '#EC4899', '#6366F1'
+                ],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  # Service 1: The Web Server (Django)
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app  # Live Sync: Changes on your PC show up in Docker instantly
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - redis
+    environment:
+      - DB_HOST=db
+      - DB_NAME=subtracker
+      - DB_USER=postgres
+      - DB_PASS=supersecretpassword
+
+  # Service 2: The Background Worker (Celery)
+  worker:
+    build: .
+    # Note: On Linux/Docker, we don't need 'eventlet'. Standard config works!
+    command: celery -A SubTracker worker -l info
+    volumes:
+      - .:/app
+    depends_on:
+      - redis
+      - db
+    environment:
+      - DB_HOST=db
+      - DB_NAME=subtracker
+      - DB_USER=postgres
+      - DB_PASS=supersecretpassword
+
+  # Service 3: The Database (PostgreSQL)
+  db:
+    image: postgres:15
+    environment:
+      - POSTGRES_DB=subtracker
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=supersecretpassword
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # Service 4: The Broker (Redis)
+  redis:
+    image: redis:7-alpine
+
+    # Service 5: The Scheduler (Celery Beat)
+# Service 5: The Scheduler (Celery Beat)
+  beat:
+    build: .
+    command: celery -A SubTracker beat -l info
+    volumes:
+      - .:/app
+    depends_on:
+      - redis
+      - db
+    environment:
+      - DB_HOST=db
+      - DB_NAME=subtracker
+      - DB_USER=postgres
+      - DB_PASS=supersecretpassword
+
+volumes:
+  postgres_data:

@@ -1,0 +1,21 @@
+# Security: NEVER commit secrets
+.env
+*.env
+
+# Python: Ignore compiled files
+__pycache__/
+*.pyc
+
+# Database: Ignore local DBs (we use Postgres in Docker anyway)
+db.sqlite3
+*.sqlite3
+
+# OS: Ignore annoyances
+.DS_Store
+Thumbs.db
+
+# Docker: Ignore logs if any
+*.log
+
+.idea/
+celerybeat-schedule
