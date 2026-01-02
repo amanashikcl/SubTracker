@@ -3,31 +3,42 @@
 {% block title %}Add New - SubTracker{% endblock %}
 
 {% block content %}
-<div class="max-w-md mx-auto bg-white p-8 rounded-lg shadow-md">
-    <h2 class="text-2xl font-bold mb-6 text-gray-800">Track New Subscription</h2>
-    
-    <form method="post">
-        {% csrf_token %}
-        
-        {% for field in form %}
-        <div class="mb-4">
-            <label class="block text-gray-700 text-sm font-bold mb-2">{{ field.label }}</label>
-            {{ field }}
-            {% if field.errors %}
-                <p class="text-red-500 text-xs italic mt-1">{{ field.errors }}</p>
-            {% endif %}
-            {% if field.help_text %}
-                <p class="text-gray-400 text-xs mt-1">{{ field.help_text }}</p>
-            {% endif %}
-        </div>
-        {% endfor %}
-        
-        <div class="flex items-center justify-between mt-6">
-            <a href="{% url 'dashboard' %}" class="text-gray-500 hover:text-gray-800 text-sm">Cancel</a>
-            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded focus:outline-none focus:shadow-outline">
-                Save
-            </button>
-        </div>
-    </form>
+<div class="max-w-md mx-auto card bg-base-100 shadow-xl">
+    <div class="card-body">
+        <h2 class="card-title text-2xl font-bold mb-4">Track New Subscription</h2>
+
+        <form method="post">
+            {% csrf_token %}
+
+            {% for field in form %}
+            <div class="form-control w-full mb-2">
+                <label class="label">
+                    <span class="label-text font-bold">{{ field.label }}</span>
+                </label>
+
+                {{ field }}
+
+                {% if field.errors %}
+                    <label class="label">
+                        <span class="label-text-alt text-error font-medium">{{ field.errors|striptags }}</span>
+                    </label>
+                {% endif %}
+
+                {% if field.help_text %}
+                    <label class="label">
+                        <span class="label-text-alt opacity-60">{{ field.help_text }}</span>
+                    </label>
+                {% endif %}
+            </div>
+            {% endfor %}
+
+            <div class="card-actions justify-between items-center mt-6">
+                <a href="{% url 'dashboard' %}" class="btn btn-ghost btn-sm">Cancel</a>
+                <button type="submit" class="btn btn-primary px-8">
+                    Save
+                </button>
+            </div>
+        </form>
+    </div>
 </div>
 {% endblock %}
