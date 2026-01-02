@@ -35,9 +35,7 @@ class Subscription(models.Model):
         Override the save method.
         If next_billing_date isn't set, calculate it based on the start_date.
         """
-        if not self.next_billing_date:
-            self.next_billing_date = self.calculate_initial_billing_date()
-
+        self.next_billing_date = self.calculate_initial_billing_date()
         super().save(*args, **kwargs)
 
     def calculate_initial_billing_date(self):
@@ -48,11 +46,11 @@ class Subscription(models.Model):
         billing_date = self.start_date
 
         # If the start date is in the future, that is the next billing date
-        if billing_date > today:
+        if billing_date >= today:
             return billing_date
 
         # If start date is in the past, keep adding the frequency until we pass today
-        while billing_date <= today:
+        while billing_date < today:
             if self.frequency == 'weekly':
                 billing_date += relativedelta(weeks=1)
             elif self.frequency == 'monthly':
