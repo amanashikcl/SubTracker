@@ -133,7 +133,8 @@ def register(request):
 
     return render(request, 'registration/register.html', {'form': form})
 
-@require_POST
 def logout_view(request):
-    logout(request)
-    return redirect('login')
+    if request.method == 'POST':
+        logout(request)
+        return redirect('login')
+    return redirect('dashboard')
