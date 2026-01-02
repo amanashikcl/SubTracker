@@ -16,4 +16,4 @@ A ful-stack django application to track monthly subscription, visualize spending
 
 ## 🔧 How to Run Locally
 1. Clone the repo:
-   git clone [https://github.com/YOUR_USERNAME/SubTracker.git](https://github.com/YOUR_USERNAME/SubTracker.git)
+   git clone [https://github.com/YOUR_USERNAME/SubTracker.git](https://github.com/amanashikcl/SubTracker.git)
