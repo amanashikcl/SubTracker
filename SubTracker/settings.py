@@ -14,20 +14,16 @@ from pathlib import Path
 
 from celery.schedules import crontab
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-6l^x^$_+&m14i=70(0+gnj1#wv+0(#^1o_wipen60g)d0bjk%h'
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'change-me-in-production')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DEBUG') == 'True'
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = ['subtrackerapp.tech', 'www.subtrackerapp.tech', 'web', 'localhost', '3.108.252.12']
+hosts_env = os.environ.get('ALLOWED_HOSTS', '')
+ALLOWED_HOSTS = [host.strip() for host in hosts_env.split(',')] if hosts_env else []
 
 
 # Application definition
@@ -73,8 +69,6 @@ TEMPLATES = [
 WSGI_APPLICATION = 'SubTracker.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
 DATABASES = {
     'default': {
@@ -82,14 +76,11 @@ DATABASES = {
         'NAME': os.environ.get('DB_NAME', 'subtracker'),
         'USER': os.environ.get('DB_USER', 'postgres'),
         'PASSWORD': os.environ.get('DB_PASS', 'supersecretpassword'),
-        'HOST': os.environ.get('DB_HOST', 'db'),  # 'db' matches the service name in docker-compose.yml
+        'HOST': os.environ.get('DB_HOST', 'db'),
         'PORT': '5432',
     }
 }
 
-
-# Password validation
-# https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -107,8 +98,6 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-# Internationalization
-# https://docs.djangoproject.com/en/6.0/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
 
@@ -119,11 +108,8 @@ USE_I18N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 
-# Celery Configuration
 CELERY_BROKER_URL = 'redis://redis:6379/0'
 CELERY_RESULT_BACKEND = 'redis://redis:6379/0'
 CELERY_TIMEZONE = 'UTC'
@@ -136,7 +122,7 @@ CELERY_BEAT_SCHEDULE = {
         'schedule': crontab(hour=8, minute=0),
     },
     'rollover-dates-at-midnight': {
-        'task': 'your_app_name.tasks.rollover_billing_dates',
+        'task': 'SubTrackerApp.tasks.rollover_billing_dates',
         'schedule': crontab(hour=0, minute=1), # Runs at 12:01 AM
     },
 }
@@ -146,22 +132,18 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
+import os
 
-# Your Gmail address
-EMAIL_HOST_USER = 'subtrackeralert@gmail.com'
 
-# The 16-character App Password you just generated (NOT your real password)
-EMAIL_HOST_PASSWORD = 'tqrf ohwe wznf zzim'
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 
-LOGOUT_REDIRECT_URL = 'login'  # Redirect to login page after logout
-LOGIN_REDIRECT_URL = 'dashboard' # Redirect to dashboard after login
 
-# settings.py
+LOGOUT_REDIRECT_URL = 'login'
+LOGIN_REDIRECT_URL = 'dashboard'
 
-# ... existing code ...
 STATIC_URL = 'static/'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-# ADD THIS LINE:
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 
