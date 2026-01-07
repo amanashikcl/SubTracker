@@ -14,6 +14,3 @@ A ful-stack django application to track monthly subscription, visualize spending
 - **Secure Authentication:** User registration, login, and secure password handling.
 - **Microservices Architecture:** Fully containerized services.
 
-## 🔧 How to Run Locally
-1. Clone the repo:
-   git clone [https://github.com/YOUR_USERNAME/SubTracker.git](https://github.com/amanashikcl/SubTracker.git)
