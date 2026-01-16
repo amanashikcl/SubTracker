@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block title %}Add New - SubTracker{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto card bg-base-100 shadow-xl">
+    <div class="card-body">
+        <h2 class="card-title text-2xl font-bold mb-4">Track New Subscription</h2>
+
+        <form method="post">
+            {% csrf_token %}
+
+            {% for field in form %}
+            <div class="form-control w-full mb-2">
+                <label class="label">
+                    <span class="label-text font-bold">{{ field.label }}</span>
+                </label>
+
+                {{ field }}
+
+                {% if field.errors %}
+                    <label class="label">
+                        <span class="label-text-alt text-error font-medium">{{ field.errors|striptags }}</span>
+                    </label>
+                {% endif %}
+
+                {% if field.help_text %}
+                    <label class="label">
+                        <span class="label-text-alt opacity-60">{{ field.help_text }}</span>
+                    </label>
+                {% endif %}
+            </div>
+            {% endfor %}
+
+            <div class="card-actions justify-between items-center mt-6">
+                <a href="{% url 'dashboard' %}" class="btn btn-ghost btn-sm">Cancel</a>
+                <button type="submit" class="btn btn-primary px-8">
+                    Save
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

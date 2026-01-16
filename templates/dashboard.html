@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - SubTracker{% endblock %}
+
+{% block content %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+
+    <div>
+        <h1 class="text-3xl font-bold">My Subscriptions</h1>
+        <p class="text-base-content/60">Manage and track your recurring expenses</p>
+    </div>
+    <a href="{% url 'add_subscription' %}" class="btn btn-neutral">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+        Add Subscription
+    </a>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+    <div class="stats shadow bg-base-100 w-full lg:col-span-1 items-stretch">
+    <div class="stat">
+        <div class="stat-figure text-primary opacity-30">
+
+        </div>
+
+        <div class="stat-title text-sm uppercase">Total Monthly Cost</div>
+        <div class="stat-value text-base-content text-4xl leading-tight">${{ total_cost|default:"0" }}</div>
+        <div class="stat-desc text-sm opacity-70 -mt-1">Calculated based on billing frequency</div>
+    </div>
+</div>
+
+    <div class="card bg-base-100 shadow lg:col-span-2 min-h-[300px]">
+        <div class="card-body py-4 flex flex-col items-center justify-center">
+            <h3 class="card-title text-sm uppercase opacity-50 self-start">Spend Breakdown</h3>
+
+            {% if subscriptions %}
+                <div class="relative h-72 w-full max-w-[350px] mx-auto">
+                    <canvas id="spendChart"></canvas>
+                </div>
+            {% else %}
+                <div class="flex flex-col items-center justify-center py-10 text-center">
+                    <div class="bg-base-200 p-4 rounded-full mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 opacity-20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
+                        </svg>
+                    </div>
+                    <p class="text-base-content/50 font-medium">Add subscriptions to see insights</p>
+                    <p class="text-xs opacity-40">Your spending breakdown will appear here</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+
+<div class="overflow-x-auto bg-base-100 rounded-box shadow">
+    <table class="table table-zebra w-full">
+        <thead>
+            <tr class="text-base-content/70">
+                <th>Name</th>
+                <th>Cost</th>
+                <th>Next Bill</th>
+                <th>Frequency</th>
+                <th class="text-right">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for sub in subscriptions %}
+            <tr>
+                <td>
+                    <div class="font-bold text-lg">{{ sub.name }}</div>
+                </td>
+                <td class="text-lg font-semibold">${{ sub.cost }}</td>
+                <td>
+    <div class="badge {% if sub.is_near_due %}badge-error text-white{% else %}badge-primary badge-outline{% endif %} font-medium">
+        {{ sub.next_billing_date }}
+    </div>
+
+    {% if sub.is_near_due %}
+        <div class="text-[10px] text-error font-bold mt-1 uppercase">
+            Due in {{ sub.days_until_due }} days
+        </div>
+    {% endif %}
+</td>
+                <td>
+                    <div class="badge badge-ghost capitalize">{{ sub.frequency }}</div>
+                </td>
+                <td class="text-right">
+                    <div class="flex justify-end gap-2">
+                        <a href="{% url 'edit_subscription' sub.id %}" class="btn btn-ghost btn-xs text-info">Edit</a>
+                        <a href="{% url 'delete_subscription' sub.id %}" class="btn btn-ghost btn-xs text-error">Delete</a>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" class="py-12">
+                    <div class="flex flex-col items-center opacity-40">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0a2 2 0 01-2 2H6a2 2 0 01-2-2m16 0l-8 4-8-4" /></svg>
+                        <p>No subscriptions tracked yet.</p>
+                        <a href="{% url 'add_subscription' %}" class="link link-primary">Get started here</a>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+    const ctx = document.getElementById('spendChart').getContext('2d');
+
+    const style = getComputedStyle(document.body);
+    const primary = style.getPropertyValue('--p');
+    const secondary = style.getPropertyValue('--s');
+    const accent = style.getPropertyValue('--a');
+
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: {{ sub_names|safe }},
+            datasets: [{
+                data: {{ sub_costs|safe }},
+                backgroundColor: [
+                    'oklch(' + primary + ')',
+                    'oklch(' + secondary + ')',
+                    'oklch(' + accent + ')',
+                    '#3b82f6', '#10b981', '#f59e0b'
+                ],
+                hoverOffset: 10, // Reduced slightly to save space
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            // 1. Add padding so the hover effect doesn't hit the edges
+            layout: {
+                padding: 20
+            },
+            plugins: {
+                legend: {
+                    // 2. Move to bottom so the chart stays centered
+                    position: 'bottom',
+                    labels: {
+                        usePointStyle: true,
+                        padding: 15,
+                        color: `oklch(${style.getPropertyValue('--bc')})`
+                    }
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}
